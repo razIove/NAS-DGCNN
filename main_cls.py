@@ -208,16 +208,6 @@ def train(args, io):
 
 def test(args, io):
   
-    # model = load_model(path='../123.pth')
-    # model2 = model.module.get_active_subnet()
-    # print(model2)
-    # model2.eval().cpu()
-    # inputs = torch.rand(1,3,1024)
-    # print(model2(inputs).shape)
-    # exit()
-
-    train_loader = DataLoader(ModelNet40(partition='train', num_points=args.num_points), num_workers=8,
-                              batch_size=args.test_batch_size, shuffle=True, drop_last=True)
     test_loader = DataLoader(ModelNet40(partition='test', num_points=args.num_points),
                              batch_size=args.test_batch_size, shuffle=False, drop_last=False)
 
@@ -232,23 +222,6 @@ def test(args, io):
         raise Exception("Not implemented")
 
     model = model.eval()
-    # if args.model == 'pointnet':
-    #     model = PointNet(args).to(device)
-    # elif args.model == 'dgcnn':
-    #     model = DGCNN_cls(model_args).to(device)
-    # else:
-    #     raise Exception("Not implemented")
-
-    # model = nn.DataParallel(model)
-    # model.load_state_dict(torch.load(args.model_path))
-    # model = model.eval()
-    # model.module.set_active_subnet(configs=([64, 56, 88, 120], [144, 208], [26, 22, 13, 25], 4),stage='depth|encoder|k|decoder')    
-    
-    # torch.save({'state_dict':model.state_dict(),'sample_configs':model.module.configs,'stage':args.stage, 'config':model.module.config},
-    #          'checkpoints/%s/models/123.pth' % (args.exp_name))
-
- 
-    min_macs,min_params=1e10,9e10
 
     for _ in range(1):
 
@@ -332,13 +305,13 @@ if __name__ == "__main__":
 
     parser.add_argument('--kd_ratio', type=float, default=1.0,
                         help='>0:use teacher model default:0.0 or 1.0')
-    parser.add_argument('--kd_model_path', type=str, default='D:/CPY/dianyun/NAS/论文/codes/ofa_dgc-master/checkpoints/teacher_test/models/model.pkl', metavar='N',
+    parser.add_argument('--kd_model_path', type=str, default='the_best_model.pth', metavar='N',
                         help='Pretrained teachet model path')                        
     parser.add_argument('--kd_type', type=str, default='ce', metavar='N',
                         choices=['ce', 'tbd'],
                         help='loss for kd')
 
-    parser.add_argument('--model_path', type=str, default='../123.t7', metavar='N',
+    parser.add_argument('--model_path', type=str, default='pretrain_model.t7', metavar='N',
                         help='Pretrained model path')
     parser.add_argument('--stage', type=str, default='',
                         help='Trainning stage : to sample k|encoder|decoder|depth')

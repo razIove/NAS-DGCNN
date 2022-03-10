@@ -1,19 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""
-@Author: Yue Wang
-@Contact: yuewangx@mit.edu
-@File: main_cls.py
-@Time: 2018/10/13 10:39 PM
-
-Modified by 
-@Author: An Tao
-@Contact: ta19@mails.tsinghua.edu.cn
-@Time: 2019/12/30 9:32 PM
-"""
 
 
-from __future__ import print_function
 import os
 import argparse
 import torch
@@ -22,13 +10,12 @@ import torch.nn.functional as F
 import torch.optim as optim
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 from data import ModelNet40
-#from model import PointNet, DGCNN_cls
 import numpy as np
 from torch.utils.data import DataLoader
-from util import cal_loss, IOStream, cross_entropy_loss_with_soft_target, profile_macs_params
+from util import  IOStream,  profile_macs_params
 import sklearn.metrics as metrics
 from models.dynamic_dgcnn_cls import *
-from validation import ModelNet40Val
+#from validation import ModelNet40Val
 from models.networks import *
 
 def set_seed_torch(seed=0): 
@@ -78,19 +65,17 @@ def test(args, io):
     device = torch.device("cuda" if args.cuda else "cpu")
 
     model_args = cls_config_base()
-    if args.model == 'pointnet':
-        model = PointNet(args).to(device)
-    elif args.model == 'dgcnn':
-        if args.model_size == 'base':
-            model_args = cls_config_base()
-        elif args.model_size == 'tiny':
-            model_args = cls_config_tiny()
-        else:
-            raise Exception("Not implemented")
-        io.cprint(str(model_args))        
-        model = DGCNN_cls(model_args).to(device)
+
+
+    if args.model_size == 'base':
+        model_args = cls_config_base()
+    elif args.model_size == 'tiny':
+        model_args = cls_config_tiny()
     else:
         raise Exception("Not implemented")
+    io.cprint(str(model_args))        
+    model = DGCNN_cls(model_args).to(device)
+
 
     model = nn.DataParallel(model)
     model.load_state_dict(torch.load(args.model_path))
@@ -108,7 +93,8 @@ def test(args, io):
         model(rand_input)
         macs, params, macs_str, params_str = profile_macs_params(model.module.get_active_subnet().cpu())
         
-        # if not args.params/2 < params < args.params :#400k
+        # params limit
+        # if not args.params/2 < params < args.params
         #     continue
         
         io.cprint(f"MACs {macs_str} Params {params_str}")
@@ -150,7 +136,7 @@ def test(args, io):
         total_acc.append(test_acc)
 
         #save_model(args,model,'%.3f_%s_%s.pth'%(test_acc,macs_str,params_str))
-        torch.save({'state_dict':model.state_dict(),'sample_configs':model.module.configs,'stage':args.stage, 'config':model.module.configs}
+        torch.save({'state_dict':model.state_dict(),'sample_configs':model.module.configs,'stage':args.stage, 'config':model.module.config}
             , 'checkpoints/%s/models/%.3f_%s_%s.pth' % (args.exp_name,test_acc,macs_str,params_str))
 
     io.cprint('Total models: %d, avg acc:%.3f, max acc:%.3f, min acc:%.3f'%(len(total_acc),np.mean(total_acc),max(total_acc),min(total_acc)))
@@ -158,13 +144,16 @@ def test(args, io):
 
 
 if __name__ == "__main__":
-    # Training settings
+    #  settings
     parser = argparse.ArgumentParser(description='Point Cloud Recognition')
     parser.add_argument('--exp_name', type=str, default='eval', metavar='N',
                         help='Name of the experiment')
     parser.add_argument('--model', type=str, default='dgcnn', metavar='N',
                         choices=['pointnet', 'dgcnn'],
                         help='Model to use, [pointnet, dgcnn]')
+    parser.add_argument('--model_size', type=str, default='base', metavar='N',
+                        choices=['base', 'tiny'],
+                        help='search space to use, [base, tiny]')
     parser.add_argument('--test_batch_size', type=int, default=16, metavar='batch_size',
                         help='Size of batch)')
 
@@ -180,9 +169,9 @@ if __name__ == "__main__":
     parser.add_argument('--no_bn', type=bool, default=False,
                         help='set True to disable bn retrain')
 
-    parser.add_argument('--model_path', type=str, default='/raid/user11/project/ofa_dgc/checkpoints/ofa_convlinear_ori/models/model.t7', metavar='N',
+    parser.add_argument('--model_path', type=str, default='path_to_a_model.t7', metavar='N',
                         help='Pretrained model path')
-    parser.add_argument('--stage', type=str, default='',
+    parser.add_argument('--stage', type=str, default='k|encoder|decoder|depth',
                         help='Trainning stage : to sample k|encoder|decoder|depth')
     parser.add_argument('--num', type=int, default=648, metavar='N',
                         help='Num of network architecture to sample')
