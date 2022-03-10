@@ -34,9 +34,9 @@ def _init_():
         os.makedirs('checkpoints/'+args.exp_name+'/'+'models')
     os.system('cp main_cls.py checkpoints'+'/'+args.exp_name+'/'+'main_cls.py.backup')
     os.system('cp util.py checkpoints' + '/' + args.exp_name + '/' + 'util.py.backup')
-    os.system('cp data.py checkpoints' + '/' + args.exp_name + '/' + 'data.py.backup')
     os.system('cp ./models/dynamic_dgcnn_cls.py checkpoints' + '/' + args.exp_name + '/' + 'dynamic_dgcnn_cls.py.backup')
     os.system('cp ./models/dynamic_layers.py checkpoints' + '/' + args.exp_name + '/' + 'dynamic_layers.py.backup')
+    os.system('cp ./models/networks.py checkpoints' + '/' + args.exp_name + '/' + 'networks.py.backup')
 
 
 def load_model(path,set_stage=True):
@@ -303,7 +303,7 @@ if __name__ == "__main__":
     parser.add_argument('--k', type=int, default=20, metavar='N',
                         help='Num of default nearest neighbors to use')
 
-    parser.add_argument('--kd_ratio', type=float, default=1.0,
+    parser.add_argument('--kd_ratio', type=float, default=0.0,
                         help='>0:use teacher model default:0.0 or 1.0')
     parser.add_argument('--kd_model_path', type=str, default='the_best_model.pth', metavar='N',
                         help='Pretrained teachet model path')                        

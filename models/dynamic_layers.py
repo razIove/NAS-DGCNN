@@ -1,4 +1,4 @@
-from pkg_resources import add_activation_listener
+
 import torch.nn.functional as F
 import torch.nn as nn
 import torch
@@ -100,81 +100,6 @@ class DynamicLinear(nn.Module):
 
         return y
 
-class DynamicLinear2(nn.Module):
-    def __init__(self, max_in_features, max_out_features, bias=True):
-        super(DynamicLinear, self).__init__()
-
-        self.max_in_features = max_in_features
-        self.max_out_features = max_out_features
-        self.bias = bias
-
-        self.linear = nn.Linear(self.max_in_features, self.max_out_features, self.bias)
-
-        self.active_out_features = self.max_out_features
-
-    def get_active_layer(self, in_features, preserve_weight=True):
-        layer = nn.Linear(in_features, self.active_out_features, self.bias).to(
-            self.parameters().__next__().device
-        )
-        if not preserve_weight:
-            print(preserve_weight)
-            return layer
-
-        layer.weight.data.copy_(
-            self.get_active_weight(self.active_out_features, in_features).data
-        )
-        if self.bias:
-            layer.bias.data.copy_(self.get_active_bias(self.active_out_features).data)
-        return nn.Sequential(layer)
-
-    def get_active_weight(self, out_features, in_features):
-        return self.linear.weight[:out_features, :in_features]
-
-    def get_active_bias(self, out_features):
-        return self.linear.bias[:out_features] if self.bias else None
-
-    def check_active_size(self, in_features):
-        # TODO: check in_features for linear @PanyueChen
-        # now only support in_features is int
-        assert isinstance(in_features, int), type(in_features)
-        assert (
-            in_features <= self.max_in_features
-        ), f"{in_features} > max in features {self.max_in_features}"
-
-    def get_active_params(self, in_features):
-        self.check_active_size(in_features)
-        total_params = 0.0
-        weight_params = in_features * self.active_out_features
-        bias_params = self.active_out_features if self.bias else 0
-        total_params += weight_params + bias_params
-        return total_params
-
-    def get_active_macs(self, in_features):
-        """
-        Similar to thop.vision.basic_hooks.count_linear
-                Now only support in_features is int
-        """
-        self.check_active_size(in_features)
-        total_macs = 0.0
-        # total_macs += ?
-        # TODO: @PanyueChen
-
-    def forward(self, x, out_features=None):
-        if (
-            self.active_out_features == self.max_out_features
-            and x.size(1) == self.max_in_features
-        ):
-            return self.linear(x)
-
-        if out_features is None:
-            out_features = self.active_out_features
-
-        in_features = x.size(1)
-        weight = self.get_active_weight(out_features, in_features).contiguous()
-        bias = self.get_active_bias(out_features)
-        y = F.linear(x, weight, bias)
-
-        return y
 
 
 class DynamicBatchNorm2d(nn.Module):
@@ -295,8 +220,6 @@ class DynamicConv2d(nn.Module):
             out_channel = self.active_out_channel
         in_channel = x.size(1)
         filters = self.get_active_filter(out_channel, in_channel).contiguous()
-
-        # filters = self.conv.weight_standardization(filters) if isinstance(self.conv, MyConv2d) else filters
         y = F.conv2d(x, filters, None)
         return y
 
@@ -356,7 +279,6 @@ class DynamicConv1d(nn.Module):
 
         filters = self.get_active_filter(out_channel, in_channel).contiguous()
 
-        # filters = self.conv.weight_standardization(filters) if isinstance(self.conv, MyConv2d) else filters
         y = F.conv1d(x, filters, None)
         return y
 

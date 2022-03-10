@@ -2,6 +2,3 @@
 data/
 __pycache__/
 checkpoints/
-*.t7
-*.backup
-*.out
