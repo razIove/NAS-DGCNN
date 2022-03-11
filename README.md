@@ -1,4 +1,4 @@
-# Submission.58
+# NAS-DGCNN
 This repo is the official implementation for **Searching Efficient Dynamic Graph CNN for Point Cloud Processing**.
 
 &nbsp;
