@@ -47,8 +47,8 @@ python main_cls.py --exp_name=cls_test --eval 1 --model_path [path_to_model]
 ```
 The provided pre-trained model can be tested by running the following command:
 ``` 
-python main_cls.py --exp_name=cls_test --eval 1 --model_path './pretrain_model/partseg/0.929_138.947M_150.392K.pth' 
-python main_cls.py --exp_name=cls_test --eval 1 --model_path './pretrain_model/partseg/0.934_1.213G_711.240K.pth'
+python main_cls.py --exp_name=cls_test --eval 1 --model_path './pretrain_model/cls/0.929_138.947M_150.392K.pth' 
+python main_cls.py --exp_name=cls_test --eval 1 --model_path './pretrain_model/cls/0.934_1.213G_711.240K.pth'
 ```
 
 
@@ -68,7 +68,7 @@ python search_partseg.py --exp_name=random_search_partseg [--use_tiny_transform 
 ```
 ### Run the evaluation script with pretrained models:
 ``` 
-python main_partseg.py --exp_name=partseg_test --eval 1 [--use_tiny_transform 1] --model_path [path_to_model] --subnet_config [sampled_subnet]
+python main_partseg.py --exp_name=partseg_test --eval 1 [--use_tiny_transform 1] --model_path [path_to_model] --subnet_config [sampled_subnet] --stage 'encoder|k|decoder'
 ```
 The provided pre-trained model can be tested by running the following command:
 ``` 
