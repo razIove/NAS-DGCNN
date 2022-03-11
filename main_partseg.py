@@ -383,7 +383,7 @@ if __name__ == "__main__":
                         help='Pretrained model path')
 
     parser.add_argument('--stage', type=str, default='',
-                        help='Trainning stage : to sample k|conv|linear TODO:depth')
+                        help='Trainning stage : to sample k|encoder|decoder')
 
     parser.add_argument('--kd_ratio', type=float, default=0.0,
                         help='>0:use teacher model default:0.0 or 1.0')
