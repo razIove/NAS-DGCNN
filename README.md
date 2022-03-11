@@ -76,5 +76,9 @@ python main_partseg.py --exp_name=partseg_test --eval 1 --use_tiny_transform 1 -
 ```
 
 &nbsp;
+## Updates
++ (2022-03-11) create the implementation
+
+&nbsp;
 ## Acknowledgement
 This code is is partially borrowed from [dgcnn.pytorch](https://github.com/AnTao97/dgcnn.pytorch) and [once-for-all](https://github.com/mit-han-lab/once-for-all).  
